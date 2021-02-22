@@ -6,26 +6,29 @@
     android:orientation="vertical"
     tools:context=".NoteFragment">
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/note_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/title"
+        tools:text="@string/title"
         android:textSize="@dimen/title_in_main" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/note_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/date"
+        tools:text="@string/date"
         android:textSize="@dimen/date_ib_main" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/note_descr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/text_note"
+            tools:text="@string/text_note"
             android:textSize="@dimen/text_note_in_main" />
     </ScrollView>
 

@@ -2,11 +2,17 @@ package ru.home.mynote;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,8 +21,7 @@ import android.view.ViewGroup;
  */
 public class NoteFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private NoteStructure note;
     private static final String ARG_NOTE_FRAG = "note_fragment";
 
 
@@ -24,14 +29,14 @@ public class NoteFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment fragment_note.
-     */
-    // TODO: Rename and change types and number of parameters
+    public void setNote(NoteStructure note){
+        this.note = note;
+    }
+
+    public NoteStructure getNote() {
+        return note;
+    }
+
     public static NoteFragment newInstance(String param1) {
         NoteFragment fragment = new NoteFragment();
         Bundle args = new Bundle();
@@ -50,5 +55,20 @@ public class NoteFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_note, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initNote(view);
+    }
+
+    public void initNote(View view){
+        EditText title = view.findViewById(R.id.note_title);
+        EditText date = view.findViewById(R.id.note_date);
+        EditText descr = view.findViewById(R.id.note_descr);
+        title.setText(note.getTitle());
+        date.setText(note.getDate());
+        descr.setText(note.getDescr());
     }
 }

@@ -1,6 +1,7 @@
 package ru.home.mynote;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -25,5 +26,6 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
 
         }
+
     }
 }
