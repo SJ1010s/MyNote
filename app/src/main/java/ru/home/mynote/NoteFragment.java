@@ -11,8 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.material.appbar.MaterialToolbar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,8 +20,18 @@ import java.util.List;
  */
 public class NoteFragment extends Fragment {
 
+
     private NoteStructure note;
     private static final String ARG_NOTE_FRAG = "note_fragment";
+    private MaterialToolbar noteToolbar;
+    private EditText title;
+    private EditText date;
+    private EditText descr;
+    private int position;
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
 
     public NoteFragment() {
@@ -64,11 +73,33 @@ public class NoteFragment extends Fragment {
     }
 
     public void initNote(View view){
-        EditText title = view.findViewById(R.id.note_title);
-        EditText date = view.findViewById(R.id.note_date);
-        EditText descr = view.findViewById(R.id.note_descr);
+        title = view.findViewById(R.id.note_title);
+        date = view.findViewById(R.id.note_date);
+        descr = view.findViewById(R.id.note_descr);
         title.setText(note.getTitle());
         date.setText(note.getDate());
         descr.setText(note.getDescr());
+        noteToolbar = view.findViewById(R.id.note_details_toolbar);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        noteToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(getActivity()!=null){
+                    note.setTitle(title.getText().toString());
+                    note.setDate(date.getText().toString());
+                    note.setDescr(descr.getText().toString());
+                    getActivity().onBackPressed();
+
+                }
+            }
+        });
+    }
+
+    public int getPosition() {
+        return position;
     }
 }

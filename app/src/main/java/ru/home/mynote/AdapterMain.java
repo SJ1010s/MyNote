@@ -12,7 +12,7 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolder> {
+public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolder> implements NoteAdapterSetItem {
 
     private final List<NoteStructure> notes = new ArrayList<>();
     private final NotesAdapterCallback callback;
@@ -26,6 +26,7 @@ public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolde
         this.notes.addAll(notes);
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -43,6 +44,13 @@ public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolde
     @Override
     public int getItemCount() {
         return notes.size();
+    }
+
+    @Override
+    public void setItem(NoteStructure noteStructure, int position) {
+        notes.set(position, noteStructure);
+        notifyItemChanged(position);
+
     }
 
     class NotesViewHolder extends RecyclerView.ViewHolder{

@@ -1,6 +1,8 @@
 package ru.home.mynote;
 
-public class NoteStructure {
+import java.io.Serializable;
+
+public class NoteStructure implements Serializable {
     private String title;
     private String descr;
     private String date;

@@ -29,13 +29,15 @@ import java.util.List;
  * Use the {@link MainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainFragment extends Fragment implements NotesAdapterCallback {
+public class MainFragment extends Fragment implements NotesAdapterCallback{
 
     public static final String ARG_INDEX_MAIN = "arg_index_main";
 
     private final List<NoteStructure> notes = new ArrayList<>();
     private final AdapterMain adapterMain = new AdapterMain(this);
-
+    NoteFragment noteFragment;
+    private NoteStructure lastNoteStructure;
+    private int lastPosition;
     public MainFragment() {
         // Required empty public constructor
     }
@@ -65,7 +67,11 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment]
-
+        if(savedInstanceState!=null){
+            lastNoteStructure = noteFragment.getNote();
+            lastPosition = noteFragment.getPosition();
+            adapterMain.setItem(lastNoteStructure, lastPosition);
+        }
         return inflater.inflate(R.layout.fragment_main, container, false);
 
     }
@@ -121,8 +127,9 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onItemClick(int position) {
         NoteStructure note = notes.get(position);
-        NoteFragment noteFragment = NoteFragment.newInstance("note");
-        noteFragment.setNote(notes.get(position));
+        noteFragment = NoteFragment.newInstance("note");
+        noteFragment.setPosition(position);
+        noteFragment.setNote(note);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack("note")
