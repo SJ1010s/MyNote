@@ -99,9 +99,9 @@ public class NoteFragment extends Fragment {
                 if(getActivity()!=null){
                     Map<String, Object> noteMap = new HashMap<>();
                     noteMap.put("id", note.getId());
-                    noteMap.put("title", note.getTitle());
-                    noteMap.put("descr", note.getDescr());
-                    noteMap.put("date", note.getDate());
+                    noteMap.put("title", title.getText().toString());
+                    noteMap.put("descr", descr.getText().toString());
+                    noteMap.put("date", date.getText().toString());
                     firebaseFirestore
                             .collection("notes")
                             .document(note.getId())

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,17 +23,23 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,9 +53,8 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     private final List<NoteStructure> notes = new ArrayList<>();
     private final AdapterMain adapterMain = new AdapterMain(this);
-    NoteFragment noteFragment;
-    private NoteStructure lastNoteStructure;
-    private int lastPosition;
+    private NoteFragment noteFragment;
+
 
     public MainFragment() {
         // Required empty public constructor
@@ -71,18 +77,34 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        adapterMain.setItems(notes);
+        setFirebaseItemsInNotes();
+    }
+
+    private void setFirebaseItemsInNotes() {
+        notes.clear();
+        firebaseFirestore.collection("notes")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            for (QueryDocumentSnapshot document:task.getResult()){
+                                NoteStructure note = new NoteStructure(document.get("id").toString(), document.get("title").toString(),
+                                        document.get("descr").toString(), document.get("date").toString());
+                                notes.add(note);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        adapterMain.setItems(notes);
+                    }
+                });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment]
-        if (savedInstanceState != null) {
-            lastNoteStructure = noteFragment.getNote();
-            lastPosition = noteFragment.getPosition();
-            adapterMain.setItem(lastNoteStructure, lastPosition);
-        }
+
         return inflater.inflate(R.layout.fragment_main, container, false);
 
     }
@@ -108,8 +130,6 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     public void initButtonAdd(View view) {
         FloatingActionButton floatingActionButton = view.findViewById(R.id.main_note_add);
-
-
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
