@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 
@@ -28,15 +29,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
@@ -52,7 +50,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private final List<NoteStructure> notes = new ArrayList<>();
-    private final AdapterMain adapterMain = new AdapterMain(this);
+    private final AdapterMain adapterMain = new AdapterMain(this, this);
     private NoteFragment noteFragment;
 
 
@@ -179,5 +177,44 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
                 .addToBackStack("note")
                 .replace(R.id.activity_main, noteFragment)
                 .commit();
+    }
+
+    @Override
+    public void onCreateContextMenu(
+            @NonNull ContextMenu menu,
+            @NonNull View v,
+            @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = requireActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu_notes, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        int position = adapterMain.getMenuPosition();
+        String id = notes.get(position).getId();
+        switch (item.getItemId()){
+            case R.id.action_delete_note:
+                firebaseFirestore.collection("notes")
+                        .document(id)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                setFirebaseItemsInNotes();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error deleting document", e);
+                            }
+                        });
+
+                return true;
+        }
+        return super.onContextItemSelected(item);
+
     }
 }
