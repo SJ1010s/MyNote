@@ -11,7 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,6 +27,7 @@ import com.google.android.material.appbar.MaterialToolbar;
  */
 public class NoteFragment extends Fragment {
 
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private NoteStructure note;
     private static final String ARG_NOTE_FRAG = "note_fragment";
@@ -89,10 +97,30 @@ public class NoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(getActivity()!=null){
-                    note.setTitle(title.getText().toString());
-                    note.setDate(date.getText().toString());
-                    note.setDescr(descr.getText().toString());
-                    getActivity().onBackPressed();
+                    Map<String, Object> noteMap = new HashMap<>();
+                    noteMap.put("id", note.getId());
+                    noteMap.put("title", note.getTitle());
+                    noteMap.put("descr", note.getDescr());
+                    noteMap.put("date", note.getDate());
+                    firebaseFirestore
+                            .collection("notes")
+                            .document(note.getId())
+                            .set(noteMap)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    note.setTitle(title.getText().toString());
+                                    note.setDate(date.getText().toString());
+                                    note.setDescr(descr.getText().toString());
+                                    getActivity().onBackPressed();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                }
+                            });
 
                 }
             }

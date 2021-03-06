@@ -1,13 +1,17 @@
 package ru.home.mynote;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 
 public class NoteStructure implements Serializable {
+    private String id;
     private String title;
-    private String descr;
     private String date;
+    private String descr;
 
-    public NoteStructure(String title, String descr, String date) {
+    public NoteStructure(String id, String title, String descr, String date) {
+        this.id = id;
         this.title = title;
         this.descr = descr;
         this.date = date;
@@ -35,5 +39,9 @@ public class NoteStructure implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getId() {
+        return id;
     }
 }

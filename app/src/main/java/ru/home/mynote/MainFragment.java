@@ -17,27 +17,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link MainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainFragment extends Fragment implements NotesAdapterCallback{
+public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     public static final String ARG_INDEX_MAIN = "arg_index_main";
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private final List<NoteStructure> notes = new ArrayList<>();
     private final AdapterMain adapterMain = new AdapterMain(this);
     NoteFragment noteFragment;
     private NoteStructure lastNoteStructure;
     private int lastPosition;
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -54,7 +66,6 @@ public class MainFragment extends Fragment implements NotesAdapterCallback{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initArrayList();
     }
 
     @Override
@@ -67,7 +78,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment]
-        if(savedInstanceState!=null){
+        if (savedInstanceState != null) {
             lastNoteStructure = noteFragment.getNote();
             lastPosition = noteFragment.getPosition();
             adapterMain.setItem(lastNoteStructure, lastPosition);
@@ -80,14 +91,12 @@ public class MainFragment extends Fragment implements NotesAdapterCallback{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initToolbar(view);
         initView(view);
+        initButtonAdd(view);
         super.onViewCreated(view, savedInstanceState);
-
     }
 
-    public void initArrayList() {
-        notes.add(new NoteStructure("Заголовок 1", "Содержание 1", "2021.01.02"));
-        notes.add(new NoteStructure("Заголовок 2", "Содержание 2", "2021.01.28"));
-        notes.add(new NoteStructure("Заголовок 3", "Содержание 3", "2021.01.30"));
+    public void onSuccessNoteSet(List<NoteStructure> items) {
+        notes.clear();
     }
 
     public void initToolbar(View view) {
@@ -95,6 +104,21 @@ public class MainFragment extends Fragment implements NotesAdapterCallback{
         toolbar.inflateMenu(R.menu.main);
         setHasOptionsMenu(true);
         setMenuVisibility(true);
+    }
+
+    public void initButtonAdd(View view) {
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.main_note_add);
+
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = UUID.randomUUID().toString();
+                NoteStructure objectNote = new NoteStructure(id, "", "", "");
+                notes.add(objectNote);
+                onItemClick(notes.indexOf(objectNote));
+            }
+        });
     }
 
     public void initView(View view) {
@@ -113,7 +137,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback{
         searchText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText( getContext(), query, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
                 return true;
             }
 
