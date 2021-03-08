@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment;
 
 import android.os.Bundle;
 
@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -24,14 +23,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.R;
+import ru.home.mynote.firebase.FirebaseHandler;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link NoteFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class NoteFragment extends Fragment {
-
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
     private NoteStructure note;
     private static final String ARG_NOTE_FRAG = "note_fragment";
@@ -40,6 +41,7 @@ public class NoteFragment extends Fragment {
     private TextView date;
     private EditText descr;
     private int position;
+    private FirebaseHandler firebaseHandler;
 
     public void setPosition(int position) {
         this.position = position;
@@ -49,6 +51,8 @@ public class NoteFragment extends Fragment {
     public NoteFragment() {
         // Required empty public constructor
     }
+
+
 
     public void setNote(NoteStructure note){
         this.note = note;
@@ -114,30 +118,9 @@ public class NoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(getActivity()!=null){
-                    Map<String, Object> noteMap = new HashMap<>();
-                    noteMap.put("id", note.getId());
-                    noteMap.put("title", title.getText().toString());
-                    noteMap.put("descr", descr.getText().toString());
-                    noteMap.put("date", getCurrentDate());
-                    noteMap.put("sort", getSortDateTime());
-                    firebaseFirestore
-                            .collection("notes")
-                            .document(note.getId())
-                            .set(noteMap)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    note.setTitle(title.getText().toString());
-                                    note.setDescr(descr.getText().toString());
-                                    getActivity().onBackPressed();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
+                    firebaseHandler.saveNote(note, title.getText().toString(),
+                            descr.getText().toString(), getCurrentDate(),
+                            getSortDateTime(), getActivity());
 
                 }
             }
@@ -146,5 +129,13 @@ public class NoteFragment extends Fragment {
 
     public int getPosition() {
         return position;
+    }
+
+    public FirebaseHandler getFirebaseHandler() {
+        return firebaseHandler;
+    }
+
+    public void setFirebaseHandler(FirebaseHandler firebaseHandler){
+        this.firebaseHandler = firebaseHandler;
     }
 }

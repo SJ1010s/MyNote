@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +12,9 @@ import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.R;
 
 public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolder> implements NoteAdapterSetItem {
 

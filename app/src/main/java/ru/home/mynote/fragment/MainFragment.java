@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment;
 
 import android.os.Bundle;
 
@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.SearchView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 
@@ -38,6 +37,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import ru.home.mynote.firebase.FirebaseHandler;
+import ru.home.mynote.fragment.adapter.AdapterMain;
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.fragment.adapter.NotesAdapterCallback;
+import ru.home.mynote.R;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -48,9 +53,9 @@ import static android.content.ContentValues.TAG;
 public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     public static final String ARG_INDEX_MAIN = "arg_index_main";
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
-    private final List<NoteStructure> notes = new ArrayList<>();
+    private FirebaseHandler firebase = new FirebaseHandler();
+    private List<NoteStructure> notes = new ArrayList<>();
     private final AdapterMain adapterMain = new AdapterMain(this, this);
     private NoteFragment noteFragment;
 
@@ -76,29 +81,12 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setFirebaseItemsInNotes();
+        initNotes();
     }
 
-    private void setFirebaseItemsInNotes() {
+    private void initNotes(){
         notes.clear();
-        firebaseFirestore.collection("notes")
-                .orderBy("sort", Query.Direction.DESCENDING)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()){
-                            for (QueryDocumentSnapshot document:task.getResult()){
-                                NoteStructure note = new NoteStructure(document.get("id").toString(), document.get("title").toString(),
-                                        document.get("descr").toString(), document.get("date").toString());
-                                notes.add(note);
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                        adapterMain.setItems(notes);
-                    }
-                });
+        firebase.setFirebaseItemsInNotes(notes, adapterMain);
     }
 
     @Override
@@ -174,6 +162,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
         noteFragment = NoteFragment.newInstance("note");
         noteFragment.setPosition(position);
         noteFragment.setNote(note);
+        noteFragment.setFirebaseHandler(firebase);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack("note")
@@ -197,22 +186,8 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
         String id = notes.get(position).getId();
         switch (item.getItemId()){
             case R.id.action_delete_note:
-                firebaseFirestore.collection("notes")
-                        .document(id)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                setFirebaseItemsInNotes();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
+                firebase.deleteNote(id, notes, adapterMain);
+                initNotes();
 
                 return true;
         }
