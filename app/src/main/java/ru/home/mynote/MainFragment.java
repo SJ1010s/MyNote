@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -81,6 +82,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     private void setFirebaseItemsInNotes() {
         notes.clear();
         firebaseFirestore.collection("notes")
+                .orderBy("sort", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

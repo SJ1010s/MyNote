@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -17,6 +18,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +37,7 @@ public class NoteFragment extends Fragment {
     private static final String ARG_NOTE_FRAG = "note_fragment";
     private MaterialToolbar noteToolbar;
     private EditText title;
-    private EditText date;
+    private TextView date;
     private EditText descr;
     private int position;
 
@@ -85,9 +89,22 @@ public class NoteFragment extends Fragment {
         date = view.findViewById(R.id.note_date);
         descr = view.findViewById(R.id.note_descr);
         title.setText(note.getTitle());
+        note.setDate(getCurrentDate());
         date.setText(note.getDate());
         descr.setText(note.getDescr());
         noteToolbar = view.findViewById(R.id.note_details_toolbar);
+    }
+
+    public String getCurrentDate(){
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return dateFormat.format(currentDate);
+    }
+
+    public String getSortDateTime(){
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        return dateFormat.format(currentDate);
     }
 
     @Override
@@ -101,7 +118,8 @@ public class NoteFragment extends Fragment {
                     noteMap.put("id", note.getId());
                     noteMap.put("title", title.getText().toString());
                     noteMap.put("descr", descr.getText().toString());
-                    noteMap.put("date", date.getText().toString());
+                    noteMap.put("date", getCurrentDate());
+                    noteMap.put("sort", getSortDateTime());
                     firebaseFirestore
                             .collection("notes")
                             .document(note.getId())
@@ -110,7 +128,6 @@ public class NoteFragment extends Fragment {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     note.setTitle(title.getText().toString());
-                                    note.setDate(date.getText().toString());
                                     note.setDescr(descr.getText().toString());
                                     getActivity().onBackPressed();
                                 }

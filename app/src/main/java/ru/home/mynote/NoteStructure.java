@@ -1,10 +1,11 @@
 package ru.home.mynote;
 
-import androidx.annotation.NonNull;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.io.Serializable;
+import java.util.Date;
 
-public class NoteStructure implements Serializable {
+public class NoteStructure implements Parcelable {
     private String id;
     private String title;
     private String date;
@@ -16,6 +17,38 @@ public class NoteStructure implements Serializable {
         this.descr = descr;
         this.date = date;
     }
+
+    protected NoteStructure(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        descr = in.readString();
+        date = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(descr);
+        dest.writeString(date);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<NoteStructure> CREATOR = new Creator<NoteStructure>() {
+        @Override
+        public NoteStructure createFromParcel(Parcel in) {
+            return new NoteStructure(in);
+        }
+
+        @Override
+        public NoteStructure[] newArray(int size) {
+            return new NoteStructure[size];
+        }
+    };
 
     public String getTitle() {
         return title;
