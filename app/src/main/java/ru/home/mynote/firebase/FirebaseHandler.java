@@ -78,8 +78,7 @@ public class FirebaseHandler {
                          String title,
                          String descr,
                          String date,
-                         String sortDateTime,
-                         FragmentActivity getActivity) {
+                         String sortDateTime) {
         Map<String, Object> noteMap = new HashMap<>();
         noteMap.put("id", note.getId());
         noteMap.put("title", title);
@@ -95,7 +94,6 @@ public class FirebaseHandler {
                     public void onSuccess(Void aVoid) {
                         note.setTitle(title);
                         note.setDescr(descr);
-                        getActivity.onBackPressed();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

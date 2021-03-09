@@ -118,13 +118,18 @@ public class NoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(getActivity()!=null){
-                    firebaseHandler.saveNote(note, title.getText().toString(),
-                            descr.getText().toString(), getCurrentDate(),
-                            getSortDateTime(), getActivity());
-
+                    getActivity().onBackPressed();
                 }
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        firebaseHandler.saveNote(note, title.getText().toString(),
+                descr.getText().toString(), getCurrentDate(),
+                getSortDateTime());
     }
 
     public int getPosition() {
