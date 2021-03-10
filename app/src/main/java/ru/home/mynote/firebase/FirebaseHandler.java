@@ -1,5 +1,7 @@
 package ru.home.mynote.firebase;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -29,10 +31,29 @@ import ru.home.mynote.fragment.adapter.AdapterMain;
 
 import static android.content.ContentValues.TAG;
 
-public class FirebaseHandler {
+public class FirebaseHandler implements Parcelable {
 
 
     private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
+    public FirebaseHandler(Parcel in) {
+    }
+
+    public static final Creator<FirebaseHandler> CREATOR = new Creator<FirebaseHandler>() {
+        @Override
+        public FirebaseHandler createFromParcel(Parcel in) {
+            return new FirebaseHandler(in);
+        }
+
+        @Override
+        public FirebaseHandler[] newArray(int size) {
+            return new FirebaseHandler[size];
+        }
+    };
+
+    public FirebaseHandler() {
+
+    }
 
     public void setFirebaseItemsInNotes(List<NoteStructure> notes, AdapterMain adapterMain) {
         firebaseFirestore.collection("notes")
@@ -102,5 +123,14 @@ public class FirebaseHandler {
 
                     }
                 });
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
     }
 }

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import ru.home.mynote.Constants;
 import ru.home.mynote.firebase.FirebaseHandler;
 import ru.home.mynote.fragment.adapter.AdapterMain;
 import ru.home.mynote.NoteStructure;
@@ -53,11 +54,10 @@ import static android.content.ContentValues.TAG;
 public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     public static final String ARG_INDEX_MAIN = "arg_index_main";
-
     private FirebaseHandler firebase = new FirebaseHandler();
     private List<NoteStructure> notes = new ArrayList<>();
     private final AdapterMain adapterMain = new AdapterMain(this, this);
-    private NoteFragment noteFragment;
+
 
 
     public MainFragment() {
@@ -159,10 +159,17 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onItemClick(int position) {
         NoteStructure note = notes.get(position);
-        noteFragment = NoteFragment.newInstance("note");
-        noteFragment.setPosition(position);
-        noteFragment.setNote(note);
-        noteFragment.setFirebaseHandler(firebase);
+
+        Bundle argsMainFragment = new Bundle();
+        argsMainFragment.putParcelable(Constants.ARG_NOTE_STRUCTURE, note);
+        argsMainFragment.putParcelable(Constants.ARG_FIREBASE_HANDLER, firebase);
+
+        NoteFragment noteFragment = NoteFragment.newInstance("note");
+
+//        noteFragment.setPosition(position);
+//        noteFragment.setNote(note);
+//        noteFragment.setFirebaseHandler(firebase);
+        noteFragment.setArguments(argsMainFragment);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack("note")

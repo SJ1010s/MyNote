@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.home.mynote.Constants;
 import ru.home.mynote.NoteStructure;
 import ru.home.mynote.R;
 import ru.home.mynote.firebase.FirebaseHandler;
@@ -40,13 +41,8 @@ public class NoteFragment extends Fragment {
     private EditText title;
     private TextView date;
     private EditText descr;
-    private int position;
+
     private FirebaseHandler firebaseHandler;
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
 
     public NoteFragment() {
         // Required empty public constructor
@@ -54,8 +50,8 @@ public class NoteFragment extends Fragment {
 
 
 
-    public void setNote(NoteStructure note){
-        this.note = note;
+    public void setNote(){
+        this.note = getArguments().getParcelable(Constants.ARG_NOTE_STRUCTURE);
     }
 
     public NoteStructure getNote() {
@@ -89,6 +85,8 @@ public class NoteFragment extends Fragment {
     }
 
     public void initNote(View view){
+        setNote();
+        setFirebaseHandler();
         title = view.findViewById(R.id.note_title);
         date = view.findViewById(R.id.note_date);
         descr = view.findViewById(R.id.note_descr);
@@ -132,15 +130,12 @@ public class NoteFragment extends Fragment {
                 getSortDateTime());
     }
 
-    public int getPosition() {
-        return position;
-    }
 
     public FirebaseHandler getFirebaseHandler() {
         return firebaseHandler;
     }
 
-    public void setFirebaseHandler(FirebaseHandler firebaseHandler){
-        this.firebaseHandler = firebaseHandler;
+    public void setFirebaseHandler(){
+        this.firebaseHandler =  getArguments().getParcelable(Constants.ARG_FIREBASE_HANDLER);
     }
 }
