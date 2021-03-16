@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment.adapter;
 
 public interface NotesAdapterCallback {
 

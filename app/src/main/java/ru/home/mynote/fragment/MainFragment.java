@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment;
 
 import android.os.Bundle;
 
@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,8 +23,28 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import ru.home.mynote.Constants;
+import ru.home.mynote.firebase.FirebaseHandler;
+import ru.home.mynote.fragment.adapter.AdapterMain;
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.fragment.adapter.NotesAdapterCallback;
+import ru.home.mynote.R;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,9 +54,10 @@ import java.util.List;
 public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     public static final String ARG_INDEX_MAIN = "arg_index_main";
+    private FirebaseHandler firebase = new FirebaseHandler();
+    private List<NoteStructure> notes = new ArrayList<>();
+    private final AdapterMain adapterMain = new AdapterMain(this, this);
 
-    private final List<NoteStructure> notes = new ArrayList<>();
-    private final AdapterMain adapterMain = new AdapterMain(this);
 
     public MainFragment() {
         // Required empty public constructor
@@ -52,19 +75,22 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initArrayList();
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        adapterMain.setItems(notes);
+        initNotes();
+    }
+
+    private void initNotes() {
+        notes.clear();
+        firebase.setFirebaseItemsInNotes(notes, adapterMain);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment]
 
         return inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -74,14 +100,12 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         initToolbar(view);
         initView(view);
+        initButtonAdd(view);
         super.onViewCreated(view, savedInstanceState);
-
     }
 
-    public void initArrayList() {
-        notes.add(new NoteStructure("Заголовок 1", "Содержание 1", "2021.01.02"));
-        notes.add(new NoteStructure("Заголовок 2", "Содержание 2", "2021.01.28"));
-        notes.add(new NoteStructure("Заголовок 3", "Содержание 3", "2021.01.30"));
+    public void onSuccessNoteSet(List<NoteStructure> items) {
+        notes.clear();
     }
 
     public void initToolbar(View view) {
@@ -89,6 +113,19 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
         toolbar.inflateMenu(R.menu.main);
         setHasOptionsMenu(true);
         setMenuVisibility(true);
+    }
+
+    public void initButtonAdd(View view) {
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.main_note_add);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String id = UUID.randomUUID().toString();
+                NoteStructure objectNote = new NoteStructure(id, "", "", "");
+                notes.add(objectNote);
+                onItemClick(notes.indexOf(objectNote));
+            }
+        });
     }
 
     public void initView(View view) {
@@ -107,7 +144,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
         searchText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText( getContext(), query, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
                 return true;
             }
 
@@ -121,12 +158,56 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     @Override
     public void onItemClick(int position) {
         NoteStructure note = notes.get(position);
+
+        Bundle argsMainFragment = new Bundle();
+        argsMainFragment.putParcelable(Constants.ARG_NOTE_STRUCTURE, note);
+        argsMainFragment.putParcelable(Constants.ARG_FIREBASE_HANDLER, firebase);
+
         NoteFragment noteFragment = NoteFragment.newInstance("note");
-        noteFragment.setNote(notes.get(position));
+
+//        noteFragment.setPosition(position);
+//        noteFragment.setNote(note);
+//        noteFragment.setFirebaseHandler(firebase);
+        noteFragment.setArguments(argsMainFragment);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .addToBackStack("note")
                 .replace(R.id.activity_main, noteFragment)
                 .commit();
     }
+
+    @Override
+    public void onCreateContextMenu(
+            @NonNull ContextMenu menu,
+            @NonNull View v,
+            @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = requireActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu_notes, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete_note:
+                BottomSheetDialogFragment dialogFragment = BottomSheetDialogFragment.newInstance();
+                dialogFragment.setOnDialogListener(dialogListener);
+                dialogFragment.show(getChildFragmentManager(), "dialog_fragment");
+
+                return true;
+        }
+        return super.onContextItemSelected(item);
+
+    }
+
+    private OnDialogListener dialogListener = new OnDialogListener() {
+        @Override
+        public void onDialogYes() {
+            int position = adapterMain.getMenuPosition();
+            String id = notes.get(position).getId();
+
+            firebase.deleteNote(id, notes, adapterMain);
+            initNotes();
+        }
+    };
 }
