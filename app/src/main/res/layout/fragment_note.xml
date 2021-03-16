@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".NoteFragment">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/note_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="@string/title"
+        android:textSize="@dimen/title_in_main" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/note_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="@string/date"
+        android:textSize="@dimen/date_ib_main" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/note_descr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="@string/text_note"
+            android:textSize="@dimen/text_note_in_main" />
+    </ScrollView>
+
+</LinearLayout>
