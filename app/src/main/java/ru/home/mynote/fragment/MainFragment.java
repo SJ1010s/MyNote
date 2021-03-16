@@ -59,7 +59,6 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
     private final AdapterMain adapterMain = new AdapterMain(this, this);
 
 
-
     public MainFragment() {
         // Required empty public constructor
     }
@@ -84,7 +83,7 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
         initNotes();
     }
 
-    private void initNotes(){
+    private void initNotes() {
         notes.clear();
         firebase.setFirebaseItemsInNotes(notes, adapterMain);
     }
@@ -189,16 +188,26 @@ public class MainFragment extends Fragment implements NotesAdapterCallback {
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        int position = adapterMain.getMenuPosition();
-        String id = notes.get(position).getId();
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_delete_note:
-                firebase.deleteNote(id, notes, adapterMain);
-                initNotes();
+                BottomSheetDialogFragment dialogFragment = BottomSheetDialogFragment.newInstance();
+                dialogFragment.setOnDialogListener(dialogListener);
+                dialogFragment.show(getChildFragmentManager(), "dialog_fragment");
 
                 return true;
         }
         return super.onContextItemSelected(item);
 
     }
+
+    private OnDialogListener dialogListener = new OnDialogListener() {
+        @Override
+        public void onDialogYes() {
+            int position = adapterMain.getMenuPosition();
+            String id = notes.get(position).getId();
+
+            firebase.deleteNote(id, notes, adapterMain);
+            initNotes();
+        }
+    };
 }
