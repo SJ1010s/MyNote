@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".NoteFragment">
+    tools:context=".fragment.NoteFragment">
 
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -23,7 +23,7 @@
         android:textSize="@dimen/title_in_main"
         tools:text="@string/title" />
 
-    <com.google.android.material.textfield.TextInputEditText
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/note_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

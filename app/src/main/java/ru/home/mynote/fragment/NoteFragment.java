@@ -1,4 +1,4 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment;
 
 import android.os.Bundle;
 
@@ -10,8 +10,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import ru.home.mynote.Constants;
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.R;
+import ru.home.mynote.firebase.FirebaseHandler;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,26 +35,23 @@ import com.google.android.material.appbar.MaterialToolbar;
  */
 public class NoteFragment extends Fragment {
 
-
     private NoteStructure note;
     private static final String ARG_NOTE_FRAG = "note_fragment";
     private MaterialToolbar noteToolbar;
     private EditText title;
-    private EditText date;
+    private TextView date;
     private EditText descr;
-    private int position;
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
+    private FirebaseHandler firebaseHandler;
 
     public NoteFragment() {
         // Required empty public constructor
     }
 
-    public void setNote(NoteStructure note){
-        this.note = note;
+
+
+    public void setNote(){
+        this.note = getArguments().getParcelable(Constants.ARG_NOTE_STRUCTURE);
     }
 
     public NoteStructure getNote() {
@@ -73,13 +85,28 @@ public class NoteFragment extends Fragment {
     }
 
     public void initNote(View view){
+        setNote();
+        setFirebaseHandler();
         title = view.findViewById(R.id.note_title);
         date = view.findViewById(R.id.note_date);
         descr = view.findViewById(R.id.note_descr);
         title.setText(note.getTitle());
+        note.setDate(getCurrentDate());
         date.setText(note.getDate());
         descr.setText(note.getDescr());
         noteToolbar = view.findViewById(R.id.note_details_toolbar);
+    }
+
+    public String getCurrentDate(){
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return dateFormat.format(currentDate);
+    }
+
+    public String getSortDateTime(){
+        Date currentDate = Calendar.getInstance().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        return dateFormat.format(currentDate);
     }
 
     @Override
@@ -89,17 +116,26 @@ public class NoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(getActivity()!=null){
-                    note.setTitle(title.getText().toString());
-                    note.setDate(date.getText().toString());
-                    note.setDescr(descr.getText().toString());
                     getActivity().onBackPressed();
-
                 }
             }
         });
     }
 
-    public int getPosition() {
-        return position;
+    @Override
+    public void onPause() {
+        super.onPause();
+        firebaseHandler.saveNote(note, title.getText().toString(),
+                descr.getText().toString(), getCurrentDate(),
+                getSortDateTime());
+    }
+
+
+    public FirebaseHandler getFirebaseHandler() {
+        return firebaseHandler;
+    }
+
+    public void setFirebaseHandler(){
+        this.firebaseHandler =  getArguments().getParcelable(Constants.ARG_FIREBASE_HANDLER);
     }
 }

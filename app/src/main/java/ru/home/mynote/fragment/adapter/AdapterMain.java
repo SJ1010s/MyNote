@@ -1,10 +1,11 @@
-package ru.home.mynote;
+package ru.home.mynote.fragment.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textview.MaterialTextView;
@@ -12,21 +13,30 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.home.mynote.NoteStructure;
+import ru.home.mynote.R;
+
 public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolder> implements NoteAdapterSetItem {
 
     private final List<NoteStructure> notes = new ArrayList<>();
     private final NotesAdapterCallback callback;
+    private final Fragment contextFragment;
+    private int menuPosition;
 
-    public AdapterMain(NotesAdapterCallback callback) {
+    public AdapterMain(NotesAdapterCallback callback, Fragment contextFragment) {
         this.callback = callback;
+        this.contextFragment = contextFragment;
     }
 
-    public void setItems(List<NoteStructure> notes){
+    public void setItems(List<NoteStructure> notes) {
         this.notes.clear();
         this.notes.addAll(notes);
         notifyDataSetChanged();
     }
 
+    public int getMenuPosition() {
+        return menuPosition;
+    }
 
     @NonNull
     @Override
@@ -53,7 +63,7 @@ public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolde
 
     }
 
-    class NotesViewHolder extends RecyclerView.ViewHolder{
+    class NotesViewHolder extends RecyclerView.ViewHolder {
         private final MaterialTextView title;
         private final MaterialTextView date;
         private final MaterialTextView descr;
@@ -63,7 +73,11 @@ public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolde
             title = itemView.findViewById(R.id.item_title);
             date = itemView.findViewById(R.id.item_date);
             descr = itemView.findViewById(R.id.item_descr);
+
+            registerContextMenu(itemView);
+
         }
+
         public void onBind(NoteStructure model, int position) {
             title.setText(model.getTitle());
             date.setText(model.getDate());
@@ -77,6 +91,19 @@ public class AdapterMain extends RecyclerView.Adapter<AdapterMain.NotesViewHolde
                     }
                 }
             });
+        }
+
+        public void registerContextMenu(@NonNull View itemView) {
+            if (contextFragment != null) {
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        menuPosition = getLayoutPosition();
+                        return false;
+                    }
+                });
+                contextFragment.registerForContextMenu(itemView);
+            }
         }
 
     }
