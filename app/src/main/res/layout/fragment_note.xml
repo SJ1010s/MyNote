@@ -3,22 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".NoteFragment">
+
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/note_details_toolbar"
+        popupTheme="@style/Theme.MyNote.PopupOverplay"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_baseline_arrow_back_ios_24"/>
+
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/note_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="@string/title"
-        android:textSize="@dimen/title_in_main" />
+        android:textSize="@dimen/title_in_main"
+        tools:text="@string/title" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/note_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="@string/date"
-        android:textSize="@dimen/date_ib_main" />
+        android:textSize="@dimen/date_ib_main"
+        tools:text="@string/date" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,8 +38,8 @@
             android:id="@+id/note_descr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="@string/text_note"
-            android:textSize="@dimen/text_note_in_main" />
+            android:textSize="@dimen/text_note_in_main"
+            tools:text="@string/text_note" />
     </ScrollView>
 
 </LinearLayout>
